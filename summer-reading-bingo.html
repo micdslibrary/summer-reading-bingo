@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summer Reading Bingo</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin: 20px 0;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .bingo-cell {
+            aspect-ratio: 1;
+            border: 3px solid #e2e8f0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.9em;
+            font-weight: 500;
+            color: #2d3748;
+            background: linear-gradient(145deg, #f7fafc, #edf2f7);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .bingo-cell:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        
+        .bingo-cell:hover::before {
+            content: 'Click to add book!';
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4a5568;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            opacity: 0;
+            animation: fadeIn 0.3s ease forwards;
+        }
+        
+        .bingo-cell.completed:hover::before {
+            content: 'Click to edit book';
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        .bingo-cell.completed {
+            background: linear-gradient(145deg, #48bb78, #38a169);
+            color: white;
+            border-color: #2f855a;
+            transform: scale(0.95);
+        }
+        
+        .bingo-cell.completed::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .free-space {
+            background: linear-gradient(145deg, #fbb6ce, #f687b3) !important;
+            color: white;
+            font-weight: bold;
+            border-color: #d53f8c;
+        }
+        
+        .book-tracker {
+            background: #f0f4f8;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #38a169;
+        }
+        
+        .book-tracker h3 {
+            color: #4a5568;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .book-tracker p {
+            color: #718096;
+            margin-bottom: 15px;
+        }
+        
+        .book-entry {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .book-entry .challenge {
+            font-weight: bold;
+            color: #4a5568;
+            font-size: 0.9em;
+            margin-bottom: 4px;
+        }
+        
+        .book-entry .book-info {
+            color: #2d3748;
+            font-size: 1em;
+        }
+        
+        .empty-tracker {
+            text-align: center;
+            color: #a0aec0;
+            font-style: italic;
+            padding: 20px;
+        }
+        
+        .instructions {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+        
+        .instructions h3 {
+            color: #4a5568;
+            margin-top: 0;
+        }
+        
+        .instructions ul {
+            color: #718096;
+            line-height: 1.6;
+        }
+        
+        .progress {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.2em;
+            color: #4a5568;
+        }
+        
+        .progress-bar {
+            background: #e2e8f0;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px auto;
+            max-width: 300px;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            width: 4%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Summer Reading Bingo</h1>
+        <p class="subtitle">Challenge yourself to explore new books and reading experiences!</p>
+        
+        <div class="progress">
+            <div>Progress: <span id="completed-count">1</span> / 25 squares completed</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+        
+        <div class="bingo-grid" id="bingo-grid">
+            <div class="bingo-cell">Read a book published this year</div>
+            <div class="bingo-cell">Read a graphic novel or manga</div>
+            <div class="bingo-cell">Read a book by a global author</div>
+            <div class="bingo-cell">Read a book recommended by a friend</div>
+            <div class="bingo-cell">Read a classic you've never read</div>
+            
+            <div class="bingo-cell">Read a poetry collection</div>
+            <div class="bingo-cell">Read a book that was adapted into a movie/TV show</div>
+            <div class="bingo-cell">Read a non-fiction book</div>
+            <div class="bingo-cell">Read a book with fewer than 200 pages</div>
+            <div class="bingo-cell">Read a mystery or thriller</div>
+            
+            <div class="bingo-cell">Read a book set in a different time period</div>
+            <div class="bingo-cell">Read a book with a one-word title</div>
+            <div class="bingo-cell free-space">FREE SPACE<br>📖</div>
+            <div class="bingo-cell">Read a book by an author under 30</div>
+            <div class="bingo-cell">Read a science fiction or fantasy novel</div>
+            
+            <div class="bingo-cell">Read a memoir or autobiography</div>
+            <div class="bingo-cell">Read a book that won a major award</div>
+            <div class="bingo-cell">Read a book with more than 400 pages</div>
+            <div class="bingo-cell">Read a book of short stories</div>
+            <div class="bingo-cell">Read a book about a real historical event</div>
+            
+            <div class="bingo-cell">Read a book you can finish in one sitting</div>
+            <div class="bingo-cell">Read a book with a colorful cover</div>
+            <div class="bingo-cell">Read a book that made you cry</div>
+            <div class="bingo-cell">Read a romance</div>
+            <div class="bingo-cell">Read a book from a genre you usually avoid</div>
+        </div>
+        
+        <div class="book-tracker">
+            <h3>📖 My Reading List</h3>
+            <p>Keep track of the books you read for each challenge:</p>
+            <div class="book-list" id="book-list">
+                <!-- Books will be added here dynamically -->
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>How to Play:</h3>
+            <ul>
+                <li>Click on a square when you complete that reading challenge</li>
+                <li>Enter the book title and author when prompted</li>
+                <li>Try to get 5 in a row (horizontal, vertical, or diagonal) for BINGO!</li>
+                <li>Challenge yourself to complete the entire card</li>
+                <li>Your reading list will be saved and displayed below the bingo card</li>
+                <li>Share your progress with friends and family</li>
+                <li>Most importantly: have fun discovering new books and stories!</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let completedSquares = 1; // Start with 1 for the free space
+        const totalSquares = 25;
+        let bookEntries = [];
+        
+        // Mark free space as completed initially
+        document.querySelector('.free-space').classList.add('completed');
+        
+        // Initialize book tracker
+        updateBookTracker();
+        
+        document.getElementById('bingo-grid').addEventListener('click', function(e) {
+            if (e.target.classList.contains('bingo-cell') && !e.target.classList.contains('free-space')) {
+                if (!e.target.classList.contains('completed')) {
+                    // Marking as completed - prompt for book info
+                    const challenge = e.target.textContent.trim();
+                    const bookInfo = prompt(`🎉 Awesome! You completed: "${challenge}"\n\nWhat book did you read?\nEnter the title and author:\n\nExample: "The Hate U Give by Angie Thomas"`);
+                    
+                    if (bookInfo && bookInfo.trim()) {
+                        e.target.classList.add('completed');
+                        completedSquares++;
+                        
+                        // Add to book entries
+                        bookEntries.push({
+                            challenge: challenge,
+                            book: bookInfo.trim()
+                        });
+                        
+                        updateProgress();
+                        updateBookTracker();
+                        checkForBingo();
+                    }
+                } else {
+                    // Already completed - allow editing
+                    const challenge = e.target.textContent.trim();
+                    const currentEntry = bookEntries.find(entry => entry.challenge === challenge);
+                    const currentBook = currentEntry ? currentEntry.book : '';
+                    
+                    const bookInfo = prompt(`Edit your book for: "${challenge}"\n\nCurrent book: ${currentBook}\n\nEnter new title and author (or leave blank to remove):`);
+                    
+                    if (bookInfo === null) {
+                        // User cancelled, do nothing
+                        return;
+                    } else if (bookInfo.trim() === '') {
+                        // User wants to remove this entry
+                        e.target.classList.remove('completed');
+                        completedSquares--;
+                        bookEntries = bookEntries.filter(entry => entry.challenge !== challenge);
+                    } else {
+                        // User wants to update the book
+                        const entryIndex = bookEntries.findIndex(entry => entry.challenge === challenge);
+                        if (entryIndex !== -1) {
+                            bookEntries[entryIndex].book = bookInfo.trim();
+                        }
+                    }
+                    
+                    updateProgress();
+                    updateBookTracker();
+                }
+            }
+        });
+        
+        function updateBookTracker() {
+            const bookList = document.getElementById('book-list');
+            
+            if (bookEntries.length === 0) {
+                bookList.innerHTML = '<div class="empty-tracker">Start completing challenges to see your reading list here!</div>';
+            } else {
+                bookList.innerHTML = bookEntries.map(entry => 
+                    `<div class="book-entry">
+                        <div class="challenge">${entry.challenge}</div>
+                        <div class="book-info">${entry.book}</div>
+                    </div>`
+                ).join('');
+            }
+        }
+        
+        function updateProgress() {
+            document.getElementById('completed-count').textContent = completedSquares;
+            const percentage = (completedSquares / totalSquares) * 100;
+            document.getElementById('progress-fill').style.width = percentage + '%';
+        }
+        
+        function checkForBingo() {
+            const cells = document.querySelectorAll('.bingo-cell');
+            const grid = [];
+            
+            // Convert to 5x5 grid
+            for (let i = 0; i < 5; i++) {
+                grid[i] = [];
+                for (let j = 0; j < 5; j++) {
+                    grid[i][j] = cells[i * 5 + j].classList.contains('completed');
+                }
+            }
+            
+            // Check rows
+            for (let i = 0; i < 5; i++) {
+                if (grid[i].every(cell => cell)) {
+                    celebrateBingo();
+                    return;
+                }
+            }
+            
+            // Check columns
+            for (let j = 0; j < 5; j++) {
+                if (grid.every(row => row[j])) {
+                    celebrateBingo();
+                    return;
+                }
+            }
+            
+            // Check diagonals
+            if (grid.every((row, i) => row[i])) {
+                celebrateBingo();
+                return;
+            }
+            
+            if (grid.every((row, i) => row[4 - i])) {
+                celebrateBingo();
+                return;
+            }
+            
+            // Check for blackout (all squares completed)
+            if (completedSquares === totalSquares) {
+                celebrateBlackout();
+            }
+        }
+        
+        function celebrateBingo() {
+            setTimeout(() => {
+                alert('🎉 BINGO! Congratulations on completing a line! Keep reading to fill the whole card!');
+            }, 100);
+        }
+        
+        function celebrateBlackout() {
+            setTimeout(() => {
+                alert('🌟 AMAZING! You completed the entire reading bingo card! You are a true reading champion!');
+            }, 100);
+        }
+    </script>
+</body>
+</html>
